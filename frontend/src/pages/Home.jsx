@@ -5,7 +5,7 @@ import SongOverlay from "../components/SongOverlay";
 import SongTable from "../components/SongTable";
 import SongAutocomplete from "../components/SongAutocomplete";
 
-const socket = io("http://localhost:3002");
+const socket = io("http://165.154.248.208:3002");
 
 export default function Home() {
   const [songs, setSongs] = useState([]);
@@ -16,7 +16,9 @@ export default function Home() {
   const [selectedNext, setSelectedNext] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3002/songs").then((res) => setSongs(res.data));
+    axios
+      .get("http://165.154.248.208:3002/songs")
+      .then((res) => setSongs(res.data));
     socket.on("songChange", ({ current, next }) => {
       setCurrent(current);
       setNext(next);
@@ -27,7 +29,7 @@ export default function Home() {
   const handleAddSong = async (e) => {
     e.preventDefault();
     if (!newSong.trim()) return;
-    await axios.post("http://localhost:3002/songs", { title: newSong });
+    await axios.post("http://165.154.248.208:3002/songs", { title: newSong });
     setNewSong("");
   };
 
@@ -35,21 +37,22 @@ export default function Home() {
     try {
       // ⚡ Nếu bài đang hát chưa có trong danh sách, thêm vào
       if (selectedCurrent && !songs.find((s) => s.title === selectedCurrent)) {
-        await axios.post("http://localhost:3002/songs", {
+        await axios.post("http://165.154.248.208:3002/songs", {
           title: selectedCurrent,
         });
       }
 
       // ⚡ Nếu bài tiếp theo chưa có, thêm vào
       if (selectedNext && !songs.find((s) => s.title === selectedNext)) {
-        await axios.post("http://localhost:3002/songs", {
+        await axios.post("http://165.154.248.208:3002/songs", {
           title: selectedNext,
         });
       }
 
       // 🔄 Lấy lại danh sách mới nhất
-      const updatedSongs = (await axios.get("http://localhost:3002/songs"))
-        .data;
+      const updatedSongs = (
+        await axios.get("http://165.154.248.208:3002/songs")
+      ).data;
       setSongs(updatedSongs);
 
       // ✅ Tìm lại object đúng để gửi lên /current
@@ -59,7 +62,7 @@ export default function Home() {
         updatedSongs.find((s) => s.title === selectedNext) || null;
 
       // 💾 Gửi cập nhật lên server
-      await axios.post("http://localhost:3002/current", {
+      await axios.post("http://165.154.248.208:3002/current", {
         current: currentObj,
         next: nextObj,
       });
@@ -112,7 +115,7 @@ export default function Home() {
                 <div className="flex gap-2 mt-2 justify-center ">
                   <button
                     onClick={() =>
-                      axios.post("http://localhost:3002/action", {
+                      axios.post("http://165.154.248.208:3002/action", {
                         type: "clearCurrent",
                       })
                     }
@@ -139,7 +142,7 @@ export default function Home() {
                 <div className="flex gap-2 mt-2 justify-center">
                   <button
                     onClick={() =>
-                      axios.post("http://localhost:3002/action", {
+                      axios.post("http://165.154.248.208:3002/action", {
                         type: "nextToCurrent",
                       })
                     }
@@ -150,7 +153,7 @@ export default function Home() {
 
                   <button
                     onClick={() =>
-                      axios.post("http://localhost:3002/action", {
+                      axios.post("http://165.154.248.208:3002/action", {
                         type: "clearNext",
                       })
                     }

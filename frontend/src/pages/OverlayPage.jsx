@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:3002");
+const socket = io("http://165.154.248.208:3002");
 
 export default function OverlayPage() {
   const [current, setCurrent] = useState(null);

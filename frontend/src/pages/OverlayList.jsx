@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:3002");
+const socket = io("http://165.154.248.208:3002");
 
 export default function OverlayList() {
   const [songs, setSongs] = useState([]);
 
   useEffect(() => {
     socket.on("songsUpdate", (data) => setSongs(data));
-    fetch("http://localhost:3002/songs")
+    fetch("http://165.154.248.208:3002/songs")
       .then((res) => res.json())
       .then((data) => setSongs(data));
   }, []);

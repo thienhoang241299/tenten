@@ -3,7 +3,7 @@ import axios from "axios";
 export default function SongTable({ songs }) {
   const handleDelete = async (title) => {
     await axios.delete(
-      `http://localhost:3002/songs/${encodeURIComponent(title)}`
+      `http://165.154.248.208:3002/songs/${encodeURIComponent(title)}`
     );
   };
 
