@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@layer utilities {
+  @keyframes scrollLoop {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-scrollLoop {
+    animation: scrollLoop 40s linear infinite;
+    will-change: transform;
+  }
+}
