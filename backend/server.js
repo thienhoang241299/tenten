@@ -40,8 +40,15 @@ app.post("/songs", (req, res) => {
 // 🎵 Cập nhật bài đang hát / danh sách bài tiếp theo
 app.post("/current", (req, res) => {
   const { current, nextList } = req.body;
-  currentSong = current || null;
-  nextSongs = Array.isArray(nextList) ? nextList : [];
+
+  // 🧠 Chỉ cập nhật current nếu client thực sự gửi field đó
+  if (req.body.hasOwnProperty("current")) {
+    currentSong = current || null;
+  }
+
+  if (req.body.hasOwnProperty("nextList")) {
+    nextSongs = Array.isArray(nextList) ? nextList : [];
+  }
 
   io.emit("songChange", { current: currentSong, nextList: nextSongs });
   res.json({ success: true, current: currentSong, nextList: nextSongs });
