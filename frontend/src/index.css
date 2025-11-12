@@ -11,7 +11,7 @@
   }
 
   .animate-scrollLoop {
-    animation: scrollLoop 40s linear infinite;
+    animation: scrollLoop 60s linear infinite;
     will-change: transform;
   }
 }

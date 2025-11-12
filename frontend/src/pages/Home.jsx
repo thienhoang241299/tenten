@@ -32,11 +32,20 @@ export default function Home() {
     await axios.post("http://165.154.248.208:3002/songs", { title: newSong });
     setNewSong("");
   };
-
+  const normalize = (str) =>
+    str
+      .normalize("NFD") // tách ký tự có dấu thành ký tự + dấu
+      .replace(/[\u0300-\u036f]/g, "") // loại bỏ các dấu thanh
+      .toLowerCase()
+      .trim();
   const handleSaveSelection = async () => {
     try {
       // ⚡ Nếu bài đang hát chưa có trong danh sách, thêm vào
-      if (selectedCurrent && !songs.find((s) => s.title === selectedCurrent)) {
+      // 🧠 So sánh bằng normalize
+      if (
+        selectedCurrent &&
+        !songs.find((s) => normalize(s.title) === normalize(selectedCurrent))
+      ) {
         await axios.post("http://165.154.248.208:3002/songs", {
           title: selectedCurrent,
         });

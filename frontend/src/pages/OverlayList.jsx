@@ -26,14 +26,16 @@ export default function OverlayList() {
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen italic text-white">
-      <p className="text-4xl font-bold mb-10 bg-gray-600/60 ">Nhạc Tẽn Hát</p>
+      <p className=" rounded-xl text-4xl text-center py-2 w-[330px] font-bold mb-10 bg-gray-600/60 ">
+        Nhạc Tẽn Hát
+      </p>
       <div className="relative overflow-hidden h-[400px] w-[350px] p-3">
         {/* Container cuộn liên tục */}
         <div className="animate-scrollLoop">
           {repeatedSongs.map((song, i) => (
             <div
               key={i}
-              className="text-[28px] bg-gray-600/60 font-bold text-center rounded py-2 my-1"
+              className="text-[28px] bg-gray-600/60 font-bold text-center rounded-xl py-2 my-2"
             >
               {song.title}
             </div>
