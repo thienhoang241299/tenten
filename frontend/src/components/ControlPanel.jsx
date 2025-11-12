@@ -97,6 +97,9 @@ export default function ControlPanel() {
   return (
     <div className="bg-gray-900 text-white p-6 space-y-6 w-[600px] rounded-2xl">
       <h1 className="text-2xl font-bold text-center">🎛️ Điều khiển bài hát</h1>
+      <h2 className="text-xl text-center font-semibold mb-2">
+        Bài tiếp theo : {nextList[0]?.title || "Chưa có"}
+      </h2>
       <div className="flex justify-center mb-3">
         <button
           onClick={() =>
@@ -104,7 +107,7 @@ export default function ControlPanel() {
           }
           className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg font-semibold"
         >
-          ⏭️ Chuyển bài đầu tiên
+          ⏭️ Chuyển bài nhanh
         </button>
       </div>
       {/* Bài tiếp theo */}
