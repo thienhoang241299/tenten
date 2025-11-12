@@ -7,7 +7,7 @@ export default function SongOverlay({ current, next }) {
       <hr className="my-4 border-gray-700" />
 
       <h2 className="text-xl font-semibold mb-2">⏭️ Bài tiếp theo</h2>
-      <p className="text-xl">{next?.title || "Chưa có"}</p>
+      <p className="text-xl">{next[0]?.title || "Chưa có"}</p>
     </div>
   );
 }

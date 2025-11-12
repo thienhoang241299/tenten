@@ -49,6 +49,7 @@ export default function Home() {
   // 💾 Lưu bài đang hát và thêm bài vào list chờ
   const handleSaveSelection = async () => {
     try {
+      // 🧠 Thêm bài vào danh sách nếu chưa có
       if (
         selectedCurrent &&
         !songs.find((s) => normalize(s.title) === normalize(selectedCurrent))
@@ -63,6 +64,7 @@ export default function Home() {
         await axios.post(`${API_URL}/songs`, { title: selectedNext });
       }
 
+      // 🔄 Lấy lại danh sách bài hát mới nhất
       const updatedSongs = (await axios.get(`${API_URL}/songs`)).data;
       setSongs(updatedSongs);
 
@@ -71,17 +73,23 @@ export default function Home() {
       const nextObj =
         updatedSongs.find((s) => s.title === selectedNext) || null;
 
+      // 🧩 Thêm bài vào danh sách chờ nếu có chọn
       const newNextList = nextObj
         ? [...nextList, nextObj].filter(
             (v, i, arr) => arr.findIndex((a) => a.title === v.title) === i
           )
         : nextList;
 
-      // 🧠 Không ép current = null khi người dùng chỉ thêm bài chờ
+      // 🧠 Gửi lên server mà không xóa current nếu chưa thay đổi
       const payload = { nextList: newNextList };
       if (selectedCurrent) payload.current = currentObj;
 
       await axios.post(`${API_URL}/current`, payload);
+
+      // 🧹 Reset input sau khi lưu
+      setSelectedNext("");
+      // Nếu bạn muốn reset luôn bài đang hát thì thêm dòng dưới:
+      // setSelectedCurrent("");
     } catch (err) {
       console.error("Lỗi khi lưu bài hát:", err);
     }
@@ -113,11 +121,24 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 space-y-8">
       <h1 className="text-3xl font-bold text-center">🎵 Overlay Bài Hát</h1>
-
-      <SongOverlay current={current} next={nextList} />
+      {/* Nút chuyển bài đầu tiên */}
+      <div className="flex justify-center mb-3">
+        <button
+          onClick={() =>
+            axios.post(`${API_URL}/action`, { type: "nextToCurrent" })
+          }
+          className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg font-semibold"
+        >
+          ⏭️ Chuyển bài đầu tiên
+        </button>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        <SongTable songs={songs} />
+        <div>
+          <SongOverlay current={current} next={nextList} />
+          <div className="mt-4"></div>
+          <SongTable songs={songs} />
+        </div>
 
         {/* Form thêm và chọn bài hát */}
         <div className="bg-gray-800 p-6 rounded-2xl space-y-4">
@@ -158,18 +179,6 @@ export default function Home() {
               </p>
             ) : (
               <>
-                {/* Nút chuyển bài đầu tiên */}
-                <div className="flex justify-center mb-3">
-                  <button
-                    onClick={() =>
-                      axios.post(`${API_URL}/action`, { type: "nextToCurrent" })
-                    }
-                    className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg font-semibold"
-                  >
-                    ⏭️ Chuyển bài đầu tiên
-                  </button>
-                </div>
-
                 <ul className="space-y-2">
                   {nextList.map((song, index) => (
                     <li

@@ -8,9 +8,9 @@ export default function OverlayPage() {
   const [next, setNext] = useState(null);
 
   useEffect(() => {
-    socket.on("songChange", ({ current, next }) => {
+    socket.on("songChange", ({ current, nextList }) => {
       setCurrent(current);
-      setNext(next);
+      setNext(nextList);
     });
   }, []);
 
@@ -26,7 +26,7 @@ export default function OverlayPage() {
       <div className=" px-6 py-3 rounded-2xl text-center shadow bg-gray-600/60 ">
         <p className="text-3xl font-bold">⏭️ Bài tiếp theo</p>
         <p className="text-2xl text-white font-bold mt-1">
-          {next?.title || "Chưa có"}
+          {next[0]?.title || "Chưa có"}
         </p>
       </div>
     </div>
