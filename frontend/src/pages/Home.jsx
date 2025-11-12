@@ -5,90 +5,115 @@ import SongOverlay from "../components/SongOverlay";
 import SongTable from "../components/SongTable";
 import SongAutocomplete from "../components/SongAutocomplete";
 
-const socket = io("http://165.154.248.208:3002");
+const API_URL = "http://165.154.248.208:3002";
+const socket = io(API_URL);
 
 export default function Home() {
   const [songs, setSongs] = useState([]);
   const [current, setCurrent] = useState(null);
-  const [next, setNext] = useState(null);
+  const [nextList, setNextList] = useState([]);
   const [newSong, setNewSong] = useState("");
   const [selectedCurrent, setSelectedCurrent] = useState("");
   const [selectedNext, setSelectedNext] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://165.154.248.208:3002/songs")
-      .then((res) => setSongs(res.data));
-    socket.on("songChange", ({ current, next }) => {
+    axios.get(`${API_URL}/songs`).then((res) => setSongs(res.data));
+
+    socket.on("songChange", ({ current, nextList }) => {
       setCurrent(current);
-      setNext(next);
+      setNextList(nextList || []);
     });
+
     socket.on("songsUpdate", (data) => setSongs(data));
+
+    return () => {
+      socket.off("songChange");
+      socket.off("songsUpdate");
+    };
   }, []);
+
+  const normalize = (str) =>
+    str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
 
   const handleAddSong = async (e) => {
     e.preventDefault();
     if (!newSong.trim()) return;
-    await axios.post("http://165.154.248.208:3002/songs", { title: newSong });
+    await axios.post(`${API_URL}/songs`, { title: newSong });
     setNewSong("");
   };
-  const normalize = (str) =>
-    str
-      .normalize("NFD") // tách ký tự có dấu thành ký tự + dấu
-      .replace(/[\u0300-\u036f]/g, "") // loại bỏ các dấu thanh
-      .toLowerCase()
-      .trim();
+
+  // 💾 Lưu bài đang hát và thêm bài vào list chờ
   const handleSaveSelection = async () => {
     try {
-      // ⚡ Nếu bài đang hát chưa có trong danh sách, thêm vào
-      // 🧠 So sánh bằng normalize
       if (
         selectedCurrent &&
         !songs.find((s) => normalize(s.title) === normalize(selectedCurrent))
       ) {
-        await axios.post("http://165.154.248.208:3002/songs", {
-          title: selectedCurrent,
-        });
+        await axios.post(`${API_URL}/songs`, { title: selectedCurrent });
       }
 
-      // ⚡ Nếu bài tiếp theo chưa có, thêm vào
-      if (selectedNext && !songs.find((s) => s.title === selectedNext)) {
-        await axios.post("http://165.154.248.208:3002/songs", {
-          title: selectedNext,
-        });
+      if (
+        selectedNext &&
+        !songs.find((s) => normalize(s.title) === normalize(selectedNext))
+      ) {
+        await axios.post(`${API_URL}/songs`, { title: selectedNext });
       }
 
-      // 🔄 Lấy lại danh sách mới nhất
-      const updatedSongs = (
-        await axios.get("http://165.154.248.208:3002/songs")
-      ).data;
+      const updatedSongs = (await axios.get(`${API_URL}/songs`)).data;
       setSongs(updatedSongs);
 
-      // ✅ Tìm lại object đúng để gửi lên /current
       const currentObj =
         updatedSongs.find((s) => s.title === selectedCurrent) || null;
       const nextObj =
         updatedSongs.find((s) => s.title === selectedNext) || null;
 
-      // 💾 Gửi cập nhật lên server
-      await axios.post("http://165.154.248.208:3002/current", {
-        current: currentObj,
-        next: nextObj,
-      });
+      const newNextList = nextObj
+        ? [...nextList, nextObj].filter(
+            (v, i, arr) => arr.findIndex((a) => a.title === v.title) === i
+          )
+        : nextList;
 
-      // 🧹 (Tuỳ chọn) Reset input sau khi lưu
-      // setSelectedCurrent("");
-      // setSelectedNext("");
+      await axios.post(`${API_URL}/current`, {
+        current: currentObj,
+        nextList: newNextList,
+      });
     } catch (err) {
       console.error("Lỗi khi lưu bài hát:", err);
     }
+  };
+
+  // ⏭️ Phát bài bất kỳ trong danh sách chờ
+  const handleNextToCurrent = async (title) => {
+    await axios.post(`${API_URL}/action`, {
+      type: "nextToCurrent",
+      title,
+    });
+  };
+
+  // ❌ Xóa bài khỏi danh sách chờ
+  const handleRemoveFromQueue = async (title) => {
+    await axios.delete(`${API_URL}/next/${encodeURIComponent(title)}`);
+  };
+
+  // 🔘 Xóa tất cả danh sách chờ
+  const handleClearQueue = async () => {
+    await axios.post(`${API_URL}/action`, { type: "clearNext" });
+  };
+
+  // 🔘 Hủy bài đang hát
+  const handleClearCurrent = async () => {
+    await axios.post(`${API_URL}/action`, { type: "clearCurrent" });
   };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 space-y-8">
       <h1 className="text-3xl font-bold text-center">🎵 Overlay Bài Hát</h1>
 
-      <SongOverlay current={current} next={next} />
+      <SongOverlay current={current} next={nextList} />
 
       <div className="grid md:grid-cols-2 gap-8">
         <SongTable songs={songs} />
@@ -108,70 +133,95 @@ export default function Home() {
             </button>
           </form>
 
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-2">
-              🎤 Chọn bài hát hiển thị
-            </h2>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm mb-1">Bài đang hát</label>
-                <SongAutocomplete
-                  placeholder="Nhập để chọn bài..."
-                  songs={songs}
-                  value={selectedCurrent}
-                  onChange={setSelectedCurrent}
-                />
-                <div className="flex gap-2 mt-2 justify-center ">
-                  <button
-                    onClick={() =>
-                      axios.post("http://165.154.248.208:3002/action", {
-                        type: "clearCurrent",
-                      })
-                    }
-                    className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded font-semibold w-1/3"
-                  >
-                    🔘 Hủy bài đang hát
-                  </button>
-                  <button
-                    onClick={handleSaveSelection}
-                    className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded font-semibold w-1/3"
-                  >
-                    💾 Lưu hiển thị
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm mb-1">Bài tiếp theo</label>
-                <SongAutocomplete
-                  placeholder="Nhập để chọn bài..."
-                  songs={songs}
-                  value={selectedNext}
-                  onChange={setSelectedNext}
-                />
-                <div className="flex gap-2 mt-2 justify-center">
-                  <button
-                    onClick={() =>
-                      axios.post("http://165.154.248.208:3002/action", {
-                        type: "nextToCurrent",
-                      })
-                    }
-                    className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded font-semibold w-1/3"
-                  >
-                    ⏭️ Chuyển bài
-                  </button>
+          {/* Hiển thị chọn bài */}
+          <div className="mt-6 space-y-6">
+            {/* Bài đang hát */}
+            <div>
+              <h2 className="text-xl font-semibold mb-2">🎤 Bài đang hát</h2>
+              <SongAutocomplete
+                placeholder="Nhập để chọn bài..."
+                songs={songs}
+                value={selectedCurrent}
+                onChange={setSelectedCurrent}
+              />
 
-                  <button
-                    onClick={() =>
-                      axios.post("http://165.154.248.208:3002/action", {
-                        type: "clearNext",
-                      })
-                    }
-                    className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded font-semibold w-1/3"
-                  >
-                    🔘 Hủy bài
-                  </button>
-                </div>
+              <div className="flex gap-2 mt-2 justify-center ">
+                <button
+                  onClick={handleClearCurrent}
+                  className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded font-semibold w-1/3"
+                >
+                  🔘 Hủy bài
+                </button>
+                <button
+                  onClick={handleSaveSelection}
+                  className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded font-semibold w-1/3"
+                >
+                  💾 Lưu
+                </button>
               </div>
+            </div>
+
+            {/* Bài tiếp theo */}
+            <div>
+              <h2 className="text-xl font-semibold mb-2">📜 Thêm bài chờ</h2>
+              <SongAutocomplete
+                placeholder="Nhập để thêm vào list chờ..."
+                songs={songs}
+                value={selectedNext}
+                onChange={setSelectedNext}
+              />
+
+              <div className="flex gap-2 mt-2 justify-center">
+                <button
+                  onClick={handleClearQueue}
+                  className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded font-semibold w-1/3"
+                >
+                  🔘 Xóa tất cả
+                </button>
+                <button
+                  onClick={handleSaveSelection}
+                  className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-semibold w-1/3"
+                >
+                  ➕ Thêm vào list
+                </button>
+              </div>
+            </div>
+
+            {/* Danh sách chờ */}
+            <div>
+              <h2 className="text-xl font-semibold mt-6 mb-2">
+                🎶 Danh sách chờ
+              </h2>
+              {nextList.length === 0 ? (
+                <p className="text-gray-400 italic">
+                  Chưa có bài nào trong list.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {nextList.map((song, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center bg-gray-700 px-3 py-2 rounded-lg"
+                    >
+                      <span className="truncate max-w-[65%]">{song.title}</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleNextToCurrent(song.title)}
+                          className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded text-sm"
+                        >
+                          ⏭️ Phát
+                        </button>
+                        <button
+                          onClick={() => handleRemoveFromQueue(song.title)}
+                          className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm"
+                        >
+                          ❌
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>

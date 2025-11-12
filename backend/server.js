@@ -12,9 +12,9 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 const SONGS_FILE = "./songs.json";
-let currentSong = null;
-let nextSong = null;
 let songs = JSON.parse(fs.readFileSync(SONGS_FILE, "utf8"));
+let currentSong = null;
+let nextSongs = []; // 🔥 đổi từ nextSong -> mảng nextSongs
 
 // 📜 Lấy danh sách bài hát
 app.get("/songs", (req, res) => res.json(songs));
@@ -37,14 +37,14 @@ app.post("/songs", (req, res) => {
   res.json({ success: true });
 });
 
-// 🎵 Cập nhật bài đang hát / bài tiếp theo
+// 🎵 Cập nhật bài đang hát / danh sách bài tiếp theo
 app.post("/current", (req, res) => {
-  const { current, next } = req.body;
+  const { current, nextList } = req.body;
   currentSong = current || null;
-  nextSong = next || null;
+  nextSongs = Array.isArray(nextList) ? nextList : [];
 
-  io.emit("songChange", { current: currentSong, next: nextSong });
-  res.json({ success: true, current: currentSong, next: nextSong });
+  io.emit("songChange", { current: currentSong, nextList: nextSongs });
+  res.json({ success: true, current: currentSong, nextList: nextSongs });
 });
 
 // ❌ Xóa bài hát
@@ -53,33 +53,51 @@ app.delete("/songs/:title", (req, res) => {
   songs = songs.filter((s) => s.title !== title);
 
   if (currentSong?.title === title) currentSong = null;
-  if (nextSong?.title === title) nextSong = null;
+  nextSongs = nextSongs.filter((s) => s.title !== title);
 
   fs.writeFileSync(SONGS_FILE, JSON.stringify(songs, null, 2));
   io.emit("songsUpdate", songs);
-  io.emit("songChange", { current: currentSong, next: nextSong });
+  io.emit("songChange", { current: currentSong, nextList: nextSongs });
 
   res.json({ success: true });
 });
 
-// 🔧 Hành động đặc biệt (clear, chuyển bài)
+// 🔧 Hành động đặc biệt
 app.post("/action", (req, res) => {
-  const { type } = req.body;
+  const { type, title } = req.body;
+
   if (type === "clearCurrent") currentSong = null;
-  if (type === "clearNext") nextSong = null;
+  if (type === "clearNext") nextSongs = [];
+
+  // Nếu truyền "nextToCurrent" mà có title => phát bài cụ thể
   if (type === "nextToCurrent") {
-    currentSong = nextSong;
-    nextSong = null;
+    if (title) {
+      const found = nextSongs.find((s) => s.title === title);
+      if (found) {
+        currentSong = found;
+        nextSongs = nextSongs.filter((s) => s.title !== title);
+      }
+    } else if (nextSongs.length > 0) {
+      // Mặc định vẫn lấy bài đầu nếu không truyền title
+      currentSong = nextSongs.shift();
+    }
   }
 
-  io.emit("songChange", { current: currentSong, next: nextSong });
-  res.json({ success: true, current: currentSong, next: nextSong });
+  io.emit("songChange", { current: currentSong, nextList: nextSongs });
+  res.json({ success: true, current: currentSong, nextList: nextSongs });
 });
 
+// ❌ Xóa 1 bài khỏi list chờ
+app.delete("/next/:title", (req, res) => {
+  const title = req.params.title;
+  nextSongs = nextSongs.filter((s) => s.title !== title);
+  io.emit("songChange", { current: currentSong, nextList: nextSongs });
+  res.json({ success: true, nextList: nextSongs });
+});
 // ⚡ Socket realtime
 io.on("connection", (socket) => {
   console.log("Client connected");
-  socket.emit("songChange", { current: currentSong, next: nextSong });
+  socket.emit("songChange", { current: currentSong, nextList: nextSongs });
   socket.emit("songsUpdate", songs);
   socket.on("disconnect", () => console.log("Client disconnected"));
 });
