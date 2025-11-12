@@ -98,7 +98,10 @@ export default function ControlPanel() {
     <div className="bg-gray-900 text-white p-6 space-y-6 w-[600px] rounded-2xl">
       <h1 className="text-2xl font-bold text-center">🎛️ Điều khiển bài hát</h1>
       <h2 className="text-xl text-center font-semibold mb-2">
-        Bài tiếp theo : {nextList[0]?.title || "Chưa có"}
+        Bài tiếp theo :{" "}
+        {Array.isArray(nextList) && nextList.length > 0
+          ? nextList[0].title
+          : "Chưa có bài tiếp theo"}
       </h2>
       <div className="flex justify-center mb-3">
         <button
