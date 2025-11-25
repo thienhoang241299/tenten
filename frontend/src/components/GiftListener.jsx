@@ -50,7 +50,7 @@ export default function GiftListener({ roomId }) {
           parsedData.data?.diamondCount ||
           parsedData.data?.giftDiamondCount ||
           0;
-
+        console.log(giftValue);
         // Gửi lên server NodeJS
         socket.current.emit("giftEvent", {
           roomId,

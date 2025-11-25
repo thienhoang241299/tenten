@@ -116,6 +116,7 @@ io.on("connection", (socket) => {
 
   // Khi nhận gift từ websocket (từ Douyin SDK / TikTok Live)
   socket.on("giftEvent", ({ roomId, giftValue }) => {
+    console.log(roomId, giftValue);
     addTime(io, roomId, giftValue);
   });
 

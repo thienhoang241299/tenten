@@ -7,6 +7,7 @@ import "./index.css";
 import OverlayList from "./pages/OverlayList";
 import Order from "./pages/Order";
 import ControlPage from "./pages/ControlPage";
+import GiftTimer from "./pages/GiftTimer";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -15,7 +16,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/overlay" element={<OverlayPage />} />
       <Route path="/overlay-list" element={<OverlayList />} />
       <Route path="/order" element={<Order />} />
-      <Route path="/control" element={<ControlPage />} />{" "}
+      <Route path="/control" element={<ControlPage />} />
+      <Route path="/timer" element={<GiftTimer />} />
       {/* Popup điều khiển */}
     </Routes>
   </BrowserRouter>

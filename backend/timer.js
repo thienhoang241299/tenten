@@ -20,12 +20,13 @@ function startTimer(io, roomId) {
 }
 
 function addTime(io, roomId, giftValue) {
-  const add = GIFT_RULES[giftValue] || 0;
+  const add = giftValue || 0;
 
   if (!timers[roomId]) startTimer(io, roomId);
 
   timers[roomId].timeLeft += add;
-
+  console.log();
+  console.log(timers[roomId].timeLeft);
   io.to(roomId).emit("timeAdded", {
     added: add,
     timeLeft: timers[roomId].timeLeft,
