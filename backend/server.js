@@ -3,6 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import fs from "fs";
+import { startTimer, addTime, resetTime, getTime } from "./timer.js";
 
 const app = express();
 app.use(cors());
@@ -10,7 +11,6 @@ app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-const { startTimer, addTime, resetTime, getTime } = require("./timer");
 const SONGS_FILE = "./songs.json";
 let songs = JSON.parse(fs.readFileSync(SONGS_FILE, "utf8"));
 let currentSong = null;
