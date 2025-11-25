@@ -4,6 +4,7 @@ import axios from "axios";
 import SongOverlay from "../components/SongOverlay";
 import SongTable from "../components/SongTable";
 import SongAutocomplete from "../components/SongAutocomplete";
+import TimerControl from "../components/TimerControl";
 
 const API_URL = "http://165.154.248.208:3002";
 const socket = io(API_URL);
@@ -146,6 +147,11 @@ export default function Home() {
       <div className="grid md:grid-cols-2 gap-8">
         <div>
           <SongOverlay current={current} next={nextList} />
+          <div className="mt-4"></div>
+          <TimerControl
+            roomId="fideliacovernhactrung"
+            serverUrl="http://165.154.248.208:3002"
+          />
           <div className="mt-4"></div>
           <SongTable songs={songs} />
         </div>

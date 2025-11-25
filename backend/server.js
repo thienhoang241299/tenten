@@ -3,7 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import fs from "fs";
-import { startTimer, addTime, resetTime, getTime } from "./timer.js";
+import { timers, startTimer, addTime, resetTime, getTime } from "./timer.js";
 
 const app = express();
 app.use(cors());
@@ -124,6 +124,13 @@ io.on("connection", (socket) => {
   socket.on("resetTimer", ({ roomId }) => {
     resetTime(io, roomId);
   });
+  socket.on("setInitialTime", ({ roomId, seconds }) => {
+    if (!timers[roomId]) return;
+
+    timers[roomId].timeLeft = seconds;
+    io.to(roomId).emit("timeUpdate", timers[roomId].timeLeft);
+  });
+
   socket.emit("songChange", { current: currentSong, nextList: nextSongs });
   socket.emit("songsUpdate", songs);
   socket.on("disconnect", () => console.log("Client disconnected"));

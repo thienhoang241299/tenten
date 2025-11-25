@@ -48,4 +48,5 @@ module.exports = {
   addTime,
   resetTime,
   getTime,
+  timers,
 };
