@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import SongAutocomplete from "./SongAutocomplete";
+import TimerControl from "./TimerControl";
 
 const API_URL = "http://165.154.248.208:3002";
 const socket = io(API_URL);
@@ -189,6 +190,10 @@ export default function ControlPanel() {
           </button>
         </div>
       </div>
+      <TimerControl
+        roomId="fideliacovernhactrung"
+        serverUrl="http://165.154.248.208:3002"
+      />
     </div>
   );
 }

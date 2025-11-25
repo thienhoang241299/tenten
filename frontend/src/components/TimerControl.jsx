@@ -3,7 +3,7 @@ import io from "socket.io-client";
 
 export default function TimerControl({ roomId, serverUrl }) {
   const [socket, setSocket] = useState(null);
-  const [initialMinutes, setInitialMinutes] = useState(5);
+  const [initialMinutes, setInitialMinutes] = useState(60);
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
@@ -57,10 +57,10 @@ export default function TimerControl({ roomId, serverUrl }) {
           onClick={setInitialTime}
           className="w-full py-2 mt-2 bg-blue-600 hover:bg-blue-700 rounded"
         >
-          Set Initial Time
+          Set thời gian ban đầu
         </button>
       </div>
-
+      {/* 
       <div className="flex gap-2 mt-4">
         <button
           onClick={add30s}
@@ -75,11 +75,11 @@ export default function TimerControl({ roomId, serverUrl }) {
         >
           - 30s
         </button>
-      </div>
+      </div> */}
 
       <button
         onClick={reset}
-        className="w-full py-2 mt-4 bg-red-600 hover:bg-red-700 rounded"
+        className="w-full py-2 mt-1 bg-red-600 hover:bg-red-700 rounded"
       >
         Reset Timer
       </button>

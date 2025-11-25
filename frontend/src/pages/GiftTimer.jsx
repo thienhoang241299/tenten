@@ -27,7 +27,7 @@ export default function GiftTimer({ roomId = "fideliacovernhactrung" }) {
       </div>
       <div className="bg-gray-500/80 w-72 rounded-2xl text-white">
         <h2 className="text-center text-xl font-semibold p-4">
-          Thời gian Tẽn hát còn lại:
+          Sing Time:
           <br />
           {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
         </h2>
