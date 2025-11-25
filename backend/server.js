@@ -10,7 +10,7 @@ app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-
+const { startTimer, addTime, resetTime, getTime } = require("./timer");
 const SONGS_FILE = "./songs.json";
 let songs = JSON.parse(fs.readFileSync(SONGS_FILE, "utf8"));
 let currentSong = null;
@@ -68,7 +68,27 @@ app.delete("/songs/:title", (req, res) => {
 
   res.json({ success: true });
 });
+io.on("connection", (socket) => {
+  socket.on("joinRoom", ({ roomId }) => {
+    socket.join(roomId);
 
+    // Gửi thời gian hiện tại
+    const t = getTime(roomId);
+    socket.emit("timeUpdate", t);
+
+    startTimer(io, roomId);
+  });
+
+  // Khi nhận gift từ websocket (từ Douyin SDK / TikTok Live)
+  socket.on("giftEvent", ({ roomId, giftValue }) => {
+    addTime(io, roomId, giftValue);
+  });
+
+  // Reset từ admin UI
+  socket.on("resetTimer", ({ roomId }) => {
+    resetTime(io, roomId);
+  });
+});
 // 🔧 Hành động đặc biệt
 app.post("/action", (req, res) => {
   const { type, title } = req.body;
