@@ -68,27 +68,7 @@ app.delete("/songs/:title", (req, res) => {
 
   res.json({ success: true });
 });
-io.on("connection", (socket) => {
-  socket.on("joinRoom", ({ roomId }) => {
-    socket.join(roomId);
 
-    // Gửi thời gian hiện tại
-    const t = getTime(roomId);
-    socket.emit("timeUpdate", t);
-
-    startTimer(io, roomId);
-  });
-
-  // Khi nhận gift từ websocket (từ Douyin SDK / TikTok Live)
-  socket.on("giftEvent", ({ roomId, giftValue }) => {
-    addTime(io, roomId, giftValue);
-  });
-
-  // Reset từ admin UI
-  socket.on("resetTimer", ({ roomId }) => {
-    resetTime(io, roomId);
-  });
-});
 // 🔧 Hành động đặc biệt
 app.post("/action", (req, res) => {
   const { type, title } = req.body;
@@ -124,6 +104,25 @@ app.delete("/next/:title", (req, res) => {
 // ⚡ Socket realtime
 io.on("connection", (socket) => {
   console.log("Client connected");
+  socket.on("joinRoom", ({ roomId }) => {
+    socket.join(roomId);
+
+    // Gửi thời gian hiện tại
+    const t = getTime(roomId);
+    socket.emit("timeUpdate", t);
+
+    startTimer(io, roomId);
+  });
+
+  // Khi nhận gift từ websocket (từ Douyin SDK / TikTok Live)
+  socket.on("giftEvent", ({ roomId, giftValue }) => {
+    addTime(io, roomId, giftValue);
+  });
+
+  // Reset từ admin UI
+  socket.on("resetTimer", ({ roomId }) => {
+    resetTime(io, roomId);
+  });
   socket.emit("songChange", { current: currentSong, nextList: nextSongs });
   socket.emit("songsUpdate", songs);
   socket.on("disconnect", () => console.log("Client disconnected"));
