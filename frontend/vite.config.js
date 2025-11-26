@@ -13,4 +13,8 @@ export default defineConfig({
     port: 3003, // 👈 change this to any port you want
     open: true, // optional, auto open browser
   },
+   optimizeDeps: {
+    exclude: ["@xenova/transformers", "onnxruntime-web"],
+  },
+  worker: { format: "es" },
 });

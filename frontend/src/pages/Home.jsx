@@ -132,6 +132,16 @@ export default function Home() {
           🎛️ Mở điều khiển
         </button>
       </div>
+      <div>
+        <button
+          onClick={() =>
+            window.open("/chat", "controlPanel", "width=650,height=800")
+          }
+          className="fixed top-22 right-6 bg-blue-600 px-4 py-3 rounded-lg text-white font-semibold shadow-lg"
+        >
+          🎛️ Mở dịch chat
+        </button>
+      </div>
       {/* Nút chuyển bài đầu tiên */}
       <div className="flex justify-center mb-3">
         <button

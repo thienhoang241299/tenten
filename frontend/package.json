@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.17",
+    "@xenova/transformers": "^2.5.1",
     "axios": "^1.13.2",
     "framer-motion": "^12.23.24",
+    "onnxruntime-web": "^1.23.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5",
