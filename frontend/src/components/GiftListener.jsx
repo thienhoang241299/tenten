@@ -40,16 +40,15 @@ export default function GiftListener({ roomId }) {
 
     ws.onmessage = (event) => {
       const parsedData = JSON.parse(event.data);
-
+      // console.log("add time");
       // Lưu log vào state
       if (parsedData.event === "gift" && parsedData.data?.repeatEnd === true) {
+        console.log(parsedData.data);
         setLogs((prev) => [...prev, parsedData]);
 
         // Lấy số xu
         const giftValue =
-          parsedData.data?.diamondCount ||
-          parsedData.data?.giftDiamondCount ||
-          0;
+          parsedData.data?.diamondCount * parsedData.data?.repeatCount || 0;
         console.log(giftValue);
         // Gửi lên server NodeJS
         socket.current.emit("giftEvent", {

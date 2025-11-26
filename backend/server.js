@@ -170,6 +170,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("giftEvent", ({ roomId, giftValue }) => {
+    console.log("add time");
     addTime(io, roomId, giftValue);
   });
 

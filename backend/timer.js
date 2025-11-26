@@ -25,7 +25,7 @@ function addTime(io, roomId, giftValue) {
   if (!timers[roomId]) startTimer(io, roomId);
 
   timers[roomId].timeLeft += add;
-  console.log();
+  console.log("add time - success");
   console.log(timers[roomId].timeLeft);
   io.to(roomId).emit("timeAdded", {
     added: add,
