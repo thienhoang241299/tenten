@@ -15,6 +15,7 @@
     "axios": "^1.13.2",
     "framer-motion": "^12.23.24",
     "onnxruntime-web": "^1.23.2",
+    "pinyin-pro": "^3.27.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5",
