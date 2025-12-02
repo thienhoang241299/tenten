@@ -208,7 +208,7 @@ export default function Home() {
               🎼 Chọn Playlist hiển thị:
             </label>
             <select
-              value={playlist}
+              value={playlistChoose}
               onChange={(e) => setPlaylistChoose(e.target.value)}
               className="w-full p-2 bg-gray-700 text-white rounded"
             >
