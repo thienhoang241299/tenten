@@ -2,7 +2,7 @@ import fs from "fs";
 
 const FILES = {
   main: "./data/songs_main.json",
-  friend: "./data/songs_friend.json",
+  list2: "./data/list2.json",
 };
 
 export function loadSongs(list = "main") {
