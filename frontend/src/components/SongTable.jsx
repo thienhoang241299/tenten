@@ -1,15 +1,23 @@
 import axios from "axios";
 import { useState } from "react";
 
-export default function SongTable({ songs }) {
+export default function SongTable({ songs, playlist }) {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async (title) => {
-    if (!confirm(`Bạn có chắc muốn xóa bài "${title}" không?`)) return;
+    if (
+      !confirm(
+        `Bạn có chắc muốn xóa bài "${title}" khỏi playlist "${playlist}" không?`
+      )
+    )
+      return;
+
     setLoading(true);
     try {
       await axios.delete(
-        `http://165.154.248.208:3002/songs/${encodeURIComponent(title)}`
+        `http://165.154.248.208:3002/playlist/${playlist}/${encodeURIComponent(
+          title
+        )}`
       );
     } catch (err) {
       console.error(err);
@@ -21,7 +29,9 @@ export default function SongTable({ songs }) {
 
   return (
     <div className="bg-gray-800 p-6 rounded-2xl shadow-xl">
-      <h2 className="text-xl font-semibold mb-4">📜 Danh sách bài hát</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        📜 Playlist: <span className="text-green-400">{playlist}</span>
+      </h2>
 
       {/* Giới hạn chiều cao + thanh cuộn */}
       <div className="max-h-[500px] overflow-y-auto rounded-lg border border-gray-700">

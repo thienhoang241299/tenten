@@ -219,7 +219,7 @@ export default function Home() {
           </div>
 
           {/* Song Table hiển thị đúng playlist */}
-          <SongTable songs={playlistSongs} />
+          <SongTable songs={playlistSongs} playlist={playlistChoose} />
         </div>
 
         {/* Form thêm và chọn bài hát */}
