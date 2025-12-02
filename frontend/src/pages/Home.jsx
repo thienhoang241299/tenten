@@ -16,7 +16,9 @@ export default function Home() {
   const [newSong, setNewSong] = useState("");
   const [selectedCurrent, setSelectedCurrent] = useState("");
   const [selectedNext, setSelectedNext] = useState("");
-
+  const [playlist, setPlaylist] = useState("main");
+  const [playlistChoose, setPlaylistChoose] = useState("main");
+  const [playlistSongs, setPlaylistSongs] = useState([]);
   useEffect(() => {
     axios.get(`${API_URL}/songs`).then((res) => setSongs(res.data));
 
@@ -32,6 +34,24 @@ export default function Home() {
       socket.off("songsUpdate");
     };
   }, []);
+  const loadPlaylistSongs = async (list) => {
+    try {
+      if (list === "main") {
+        // Playlist chính dùng API cũ
+        const { data } = await axios.get(`${API_URL}/songs`);
+        setPlaylistSongs(data);
+      } else {
+        // Playlist phụ
+        const { data } = await axios.get(`${API_URL}/playlist/${list}`);
+        setPlaylistSongs(data);
+      }
+    } catch (err) {
+      console.error("Lỗi load playlist:", err);
+    }
+  };
+  useEffect(() => {
+    loadPlaylistSongs(playlistChoose);
+  }, [playlistChoose]);
 
   const normalize = (str) =>
     str
@@ -43,8 +63,22 @@ export default function Home() {
   const handleAddSong = async (e) => {
     e.preventDefault();
     if (!newSong.trim()) return;
-    await axios.post(`${API_URL}/songs`, { title: newSong });
-    setNewSong("");
+
+    try {
+      if (playlist === "main") {
+        // Playlist cũ
+        await axios.post(`${API_URL}/songs`, { title: newSong });
+      } else {
+        // Playlist mới
+        await axios.post(`${API_URL}/playlist/${playlist}`, {
+          title: newSong,
+        });
+      }
+
+      setNewSong(""); // xoá input bài hát nhưng giữ nguyên playlist
+    } catch (err) {
+      console.error("Lỗi khi thêm bài:", err);
+    }
   };
 
   // 💾 Lưu bài đang hát và thêm bài vào list chờ
@@ -156,14 +190,36 @@ export default function Home() {
 
       <div className="grid md:grid-cols-2 gap-8">
         <div>
+          {/* Overlay */}
           <SongOverlay current={current} next={nextList} />
+
           <div className="mt-4"></div>
+
+          {/* Timer */}
           <TimerControl
             roomId="fideliacovernhactrung"
             serverUrl="http://165.154.248.208:3002"
           />
+
           <div className="mt-4"></div>
-          <SongTable songs={songs} />
+          {/* Chọn playlist */}
+          <div className="mb-4">
+            <label className="font-semibold block mb-1">
+              🎼 Chọn Playlist hiển thị:
+            </label>
+            <select
+              value={playlist}
+              onChange={(e) => setPlaylistChoose(e.target.value)}
+              className="w-full p-2 bg-gray-700 text-white rounded"
+            >
+              <option value="main">📘 Playlist Chính</option>
+              <option value="list2">📗 Playlist 2</option>
+              <option value="list3">⭐ Playlist 3</option>
+            </select>
+          </div>
+
+          {/* Song Table hiển thị đúng playlist */}
+          <SongTable songs={playlistSongs} />
         </div>
 
         {/* Form thêm và chọn bài hát */}
@@ -262,6 +318,25 @@ export default function Home() {
             </div>
           </div>
           <h2 className="text-xl font-semibold mb-2">➕ Thêm bài hát</h2>
+
+          {/* CHỌN PLAYLIST */}
+          <div className="mb-2">
+            <label className="block mb-1 font-semibold">
+              🎼 Chọn Playlist:
+            </label>
+            <select
+              value={playlist}
+              onChange={(e) => setPlaylist(e.target.value)}
+              className="w-full p-2 rounded bg-gray-700 text-white"
+            >
+              <option value="main">📘 Playlist Chính (songs)</option>
+              <option value="list2">📗 Playlist 2</option>
+              <option value="list3">📗 Playlist 2</option>
+              {/* Bạn có thể thêm playlist khác */}
+              {/* <option value="vip">⭐ Playlist VIP</option> */}
+            </select>
+          </div>
+
           <form onSubmit={handleAddSong} className="space-y-2">
             <input
               className="w-full p-2 rounded bg-gray-700 text-white"
