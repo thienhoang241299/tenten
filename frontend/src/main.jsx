@@ -9,6 +9,7 @@ import Order from "./pages/Order";
 import ControlPage from "./pages/ControlPage";
 import GiftTimer from "./pages/GiftTimer";
 import ChatReceiver from "./components/ChatReceiver";
+import OverlaySubList from "./pages/OverlaySubPlaylist";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/" element={<Home />} />
       <Route path="/overlay" element={<OverlayPage />} />
       <Route path="/overlay-list" element={<OverlayList />} />
+      <Route path="/overlay-list/:playlist" element={<OverlaySubList />} />
       <Route path="/order" element={<Order />} />
       <Route path="/control" element={<ControlPage />} />
       <Route path="/timer" element={<GiftTimer />} />
