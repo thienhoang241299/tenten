@@ -1,98 +1,168 @@
 import { useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
 
-export default function GiftListener({ roomId }) {
+export default function WheelGiftListener() {
+  const wsRef = useRef(null);
+  const wheelRef = useRef(null);
+
   const [status, setStatus] = useState("Disconnected");
-  const [logs, setLogs] = useState([]);
-  const websocketRef = useRef(null);
-  const socket = useRef(null);
+  const [showWheel, setShowWheel] = useState(false);
+  const [result, setResult] = useState(null);
 
+  // Danh sách hình phạt
+  const punishments = [
+    "Nhảy 10 giây",
+    "Hát 1 câu",
+    "Uống 1 ngụm nước",
+    "Lắc đầu 20 cái",
+    "Hít đất 5 cái",
+    "Quay lại lần nữa",
+  ];
+
+  // Auto connect WebSocket
   useEffect(() => {
-    // Kết nối socket.io
-    socket.current = io("http://165.154.248.208:3002");
-    socket.current.emit("joinRoom", { roomId });
-
+    connectWS();
     return () => {
-      socket.current.disconnect();
+      if (wsRef.current) wsRef.current.close();
     };
-  }, [roomId]);
+  }, []);
 
-  // Hàm connect WebSocket (giữ nguyên code của bạn)
-  const connect = () => {
-    if (websocketRef.current) return;
+  const connectWS = () => {
+    if (wsRef.current) return;
 
     const ws = new WebSocket("ws://localhost:21213/");
-    websocketRef.current = ws;
+    wsRef.current = ws;
 
     ws.onopen = () => setStatus("Connected");
 
     ws.onclose = () => {
       setStatus("Disconnected");
-      websocketRef.current = null;
-      setTimeout(connect, 1000);
+      wsRef.current = null;
+      setTimeout(connectWS, 1000);
     };
 
     ws.onerror = () => {
-      setStatus("Connection Failed");
-      websocketRef.current = null;
-      setTimeout(connect, 1000);
+      setStatus("Error");
+      wsRef.current = null;
     };
 
     ws.onmessage = (event) => {
-      const parsedData = JSON.parse(event.data);
-      // console.log("add time");
-      // Lưu log vào state
-      if (parsedData.event === "gift" && parsedData.data?.repeatEnd === true) {
-        console.log(parsedData.data);
-        setLogs((prev) => [...prev, parsedData]);
+      const data = JSON.parse(event.data);
 
-        // Lấy số xu
-        const giftValue =
-          parsedData.data?.diamondCount * parsedData.data?.repeatCount || 0;
-        console.log(giftValue);
-        // Gửi lên server NodeJS
-        socket.current.emit("giftEvent", {
-          roomId,
-          giftValue,
-          uniqueId: parsedData.data.uniqueId,
-        });
+      if (data.event === "gift" && data.data?.repeatEnd === true) {
+        const giftId = data.data?.giftId;
+        console.log("Received Gift:", data.data);
+
+        if (giftId === 123) {
+          startWheel();
+        }
       }
     };
   };
 
-  useEffect(() => {
-    connect();
-    return () => {
-      if (websocketRef.current) websocketRef.current.close();
-    };
-    // eslint-disable-next-line
-  }, []);
+  const startWheel = () => {
+    setShowWheel(true);
+    setResult(null);
+
+    setTimeout(() => {
+      spinWheel();
+    }, 300);
+  };
+
+  const spinWheel = () => {
+    if (!wheelRef.current) return;
+
+    const segmentCount = punishments.length;
+    const index = Math.floor(Math.random() * segmentCount);
+
+    const degree = 360 * 5 + (360 / segmentCount) * index;
+
+    wheelRef.current.style.transition = "transform 4s ease-out";
+    wheelRef.current.style.transform = `rotate(${degree}deg)`;
+
+    setTimeout(() => {
+      setResult(punishments[index]);
+    }, 4000);
+  };
+
+  const closeWheel = () => {
+    setShowWheel(false);
+    setResult(null);
+  };
 
   return (
-    <div style={{ padding: 16 }}>
-      <h2>TikTok Gift Listener</h2>
-      <p>
-        Status: <b>{status}</b>
-      </p>
-
-      <h3>Gift Log:</h3>
-      <div
-        style={{
-          maxHeight: 300,
-          overflowY: "auto",
-          border: "1px solid #ddd",
-          padding: 8,
-        }}
-      >
-        {logs.map((item, i) => (
-          <details key={i} style={{ marginBottom: 8 }}>
-            <summary>
-              Gift @ {item.data?.uniqueId} — {item.data?.diamondCount} xu
-            </summary>
-            <pre>{JSON.stringify(item, null, 2)}</pre>
-          </details>
-        ))}
+    <div>
+      {/* Status hiển thị nhỏ cho dev */}
+      <div className="fixed top-2 left-2 bg-black text-white px-3 py-1 rounded text-sm opacity-70">
+        WS: {status}
       </div>
+
+      {/* Vòng quay */}
+      {showWheel && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[99999]">
+          <div className="bg-white rounded-xl p-6 shadow-2xl w-[380px] text-center">
+            <h2 className="text-xl font-bold mb-4">Vòng quay hình phạt</h2>
+
+            {/* Wheel container */}
+            <div className="relative flex justify-center items-center">
+              {/* Pointer */}
+              <div className="absolute top-[-10px] w-0 h-0 border-l-[15px] border-r-[15px] border-b-[25px] border-l-transparent border-r-transparent border-b-red-600 z-20"></div>
+
+              {/* Wheel */}
+              <div
+                ref={wheelRef}
+                className="relative w-64 h-64 rounded-full border-4 border-gray-300 overflow-hidden"
+              >
+                {punishments.map((p, i) => {
+                  const rotateDeg = (360 / punishments.length) * i;
+
+                  return (
+                    <div
+                      key={i}
+                      className="absolute inset-0 flex items-center justify-center origin-center"
+                      style={{
+                        transform: `rotate(${rotateDeg}deg)`,
+                      }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-r from-orange-400 to-yellow-300 opacity-40"
+                        style={{
+                          clipPath: "polygon(50% 50%, 100% 0, 100% 100%)",
+                        }}
+                      ></div>
+
+                      <span
+                        className="absolute text-sm font-semibold"
+                        style={{
+                          transform: "rotate(90deg) translateY(-110px)",
+                        }}
+                      >
+                        {p}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Kết quả */}
+            {result && (
+              <div className="mt-5">
+                <h3 className="text-lg font-semibold">Kết quả:</h3>
+                <div className="text-xl font-bold text-red-600 mt-2">
+                  {result}
+                </div>
+
+                <button
+                  onClick={closeWheel}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Đóng
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

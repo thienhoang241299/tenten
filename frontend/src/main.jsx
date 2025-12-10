@@ -25,6 +25,7 @@ import ControlPage from "./pages/ControlPage";
 import GiftTimer from "./pages/GiftTimer";
 import ChatReceiver from "./components/ChatReceiver";
 import OverlaySubList from "./pages/OverlaySubPlaylist";
+import WheelPunishmentPage from "./pages/WheelPunishmentPage";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -37,6 +38,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/control" element={<ControlPage />} />
       <Route path="/timer" element={<GiftTimer />} />
       <Route path="/chat" element={<ChatReceiver />} />
+      <Route path="/wheel" element={<WheelPunishmentPage />} />
     </Routes>
   </BrowserRouter>
 );
