@@ -180,7 +180,7 @@ export default function Home() {
       <div>
         <button className="fixed top-36 right-6 bg-blue-600 px-4 py-3 rounded-lg text-white font-semibold shadow-lg">
           <AdminTestGiftButton
-            apiBase="http://localhost:3002"
+            apiBase="http://165.154.248.208:3002"
             method="GET" // hoặc "POST"
             giftId={11046}
             repeatEnd={true}
