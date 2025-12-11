@@ -104,7 +104,7 @@ export default function WheelGiftListener() {
 
       {showWheel && (
         <div className="fixed inset-0 flex items-center justify-center z-[99999]">
-          <div className="rounded-xl p-6 w-[420px] h-[620px] max-w-full text-center relative bg-white">
+          <div className="rounded-xl p-6 w-[420px] h-[620px] max-w-full text-center relative ">
             {/* <button
               onClick={closeWheel}
               aria-label="Close"

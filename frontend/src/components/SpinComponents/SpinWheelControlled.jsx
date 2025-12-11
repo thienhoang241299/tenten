@@ -16,6 +16,7 @@ const DEFAULT_ITEMS = [
   "điện giật 30s",
   "uống 1 ly nước",
   "im lặng 1p",
+  "làm mặt xấu ngồi cười 1 phút",
 ];
 
 const ITEM_HEIGHT_PX = 80;
