@@ -81,7 +81,7 @@ export default function WheelGiftListener() {
   const timeoutRef = useRef(null); // Ref để giữ ID của timeout
 
   const [status, setStatus] = useState("Disconnected");
-  const [showWheel, setShowWheel] = useState(true);
+  const [showWheel, setShowWheel] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState(null); // Kết quả là string key
 
@@ -182,7 +182,7 @@ export default function WheelGiftListener() {
   };
 
   const closeWheel = () => {
-    setShowWheel(true);
+    setShowWheel(false);
     setResult(null);
     // Xóa timeout khi đóng thủ công
     if (timeoutRef.current) {
