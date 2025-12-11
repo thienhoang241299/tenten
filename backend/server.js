@@ -9,7 +9,7 @@ import actionsRoute from "./routes/actions.route.js";
 
 import socketHandler from "./config/socket.js";
 import playlistRoute from "./routes/playlist.route.js";
-
+import testRoute from "./routes/test.route.js"; // ⬅️ thêm mới
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -23,6 +23,7 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 socketHandler(io);
-
+// route test sử dụng io
+app.use("/test", testRoute(io)); // ⬅️ thêm dòng này
 const PORT = 3002;
 server.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));

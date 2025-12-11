@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { WheelOfFortune } from "@matmachry/react-wheel-of-fortune";
+import { io as ioClient } from "socket.io-client";
 import { Gift, X } from "lucide-react";
 
 // --- CÁC PHẦN TÙY CHỈNH (Spin Button và Pointer) ---
@@ -41,26 +42,22 @@ const punishmentsList = [
 const segmentCount = punishmentsList.length;
 const equalProbability = 1 / segmentCount;
 
-// Chuyển đổi thành định dạng data của thư viện (WheelOfFortunePrize)
 const wheelPrizes = punishmentsList.map((punishment, index) => {
-  // Màu sắc luân phiên cho các ô
   const colors = [
-    "#FFCDD2", // Red A100 (Hồng nhạt)
-    "#B3E5FC", // Light Blue A100 (Xanh da trời nhạt)
-    "#C8E6C9", // Green A100 (Xanh lá nhạt)
-    "#FFECB3", // Amber A100 (Vàng hổ phách nhạt)
-    "#D1C4E9", // Deep Purple A100 (Tím đậm nhạt)
-    "#F5F5F5", // Grey A100 (Xám nhạt)
-
-    // Bổ sung 3 màu mới
-    "#FFE0B2", // Orange A100 (Cam nhạt)
-    "#F8BBD0", // Pink A100 (Hồng)
-    "#CFD8DC", // Blue Grey A100 (Xanh xám nhạt)
+    "#FFCDD2",
+    "#B3E5FC",
+    "#C8E6C9",
+    "#FFECB3",
+    "#D1C4E9",
+    "#F5F5F5",
+    "#FFE0B2",
+    "#F8BBD0",
+    "#CFD8DC",
   ];
   const color = colors[index % colors.length];
 
   return {
-    key: punishment, // Dùng key làm tên hình phạt
+    key: punishment,
     color: color,
     prize: (
       <div className="flex flex-col items-center justify-center">
@@ -69,7 +66,7 @@ const wheelPrizes = punishmentsList.map((punishment, index) => {
         </span>
       </div>
     ),
-    probability: equalProbability, // Xác suất đều nhau
+    probability: equalProbability,
     displayOrientation: "horizontal",
   };
 });
@@ -79,48 +76,94 @@ export default function WheelGiftListener() {
   const wsRef = useRef(null);
   const fortuneWheelRef = useRef(null); // Ref để gọi hàm spin()
   const timeoutRef = useRef(null); // Ref để giữ ID của timeout
+  const socketIoRef = useRef(null); // Ref cho socket.io client (test)
 
   const [status, setStatus] = useState("Disconnected");
   const [showWheel, setShowWheel] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState(null); // Kết quả là string key
 
-  // Auto connect WebSocket
+  // --- Cấu hình test socket.io ---
+  // Set true để bật kết nối tới backend socket.io test (ví dụ server trên port 3002)
+  // Khi tắt (false) sẽ hoàn toàn giữ nguyên kết nối WebSocket cũ.
+  const USE_TEST_SOCKETIO = true;
+  // URL server socket.io (thay đổi nếu bạn chạy trên port khác)
+  const SOCKETIO_URL = "http://localhost:3002";
+
+  // Auto connect WebSocket (giữ nguyên logic hiện tại)
   useEffect(() => {
     connectWS();
     return () => {
       if (wsRef.current) wsRef.current.close();
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Socket.IO test (không đụng vào logic hiện có)
+  useEffect(() => {
+    if (!USE_TEST_SOCKETIO) return;
+
+    // Connect only once
+    const socket = ioClient(SOCKETIO_URL, { transports: ["websocket"] });
+    socketIoRef.current = socket;
+
+    socket.on("connect", () => {
+      console.log("Socket.IO test connected:", socket.id);
+    });
+
+    // Lắng nghe sự kiện 'gift' (payload giống cấu trúc bạn broadcast từ backend)
+    socket.on("gift", (payload) => {
+      try {
+        console.log("Socket.IO received gift:", payload);
+        const data = payload?.data || payload;
+        if (data?.repeatEnd === true) {
+          const giftId = data?.giftId;
+          if (giftId == 11046) {
+            // Gọi startWheel() — giữ nguyên logic
+            startWheel();
+          }
+        }
+      } catch (err) {
+        console.error("Error handling socket.io gift:", err);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket.IO test disconnected");
+    });
+
+    return () => {
+      if (socketIoRef.current) {
+        socketIoRef.current.disconnect();
+        socketIoRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // chạy 1 lần
 
   // Logic tự động đóng sau 10 giây khi có kết quả
   useEffect(() => {
     if (result) {
-      // Xóa timeout cũ nếu có
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-
-      // Đặt timeout mới: 10000ms = 10 giây
       timeoutRef.current = setTimeout(() => {
         closeWheel();
       }, 10000);
     } else {
-      // Nếu không có result, xóa timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
     }
 
-    // Cleanup function để xóa timeout khi component bị unmount hoặc effect chạy lại
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [result]); // Phụ thuộc vào result
+  }, [result]);
 
   const connectWS = () => {
     if (wsRef.current) return;
@@ -156,15 +199,12 @@ export default function WheelGiftListener() {
     setShowWheel(true);
     setResult(null);
 
-    // Xóa timeout trước khi quay (nếu có)
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
 
-    // Kích hoạt quay
     setTimeout(() => {
-      // Gọi hàm spin() từ ref
       fortuneWheelRef.current?.spin();
     }, 100);
   };
@@ -176,7 +216,6 @@ export default function WheelGiftListener() {
 
   const handleSpinEnd = (prize) => {
     setIsSpinning(false);
-    // Kết quả là key của giải thưởng, sẽ kích hoạt useEffect [result]
     setResult(prize.key);
     console.log("Spin ended! Winner:", prize.key);
   };
@@ -184,7 +223,6 @@ export default function WheelGiftListener() {
   const closeWheel = () => {
     setShowWheel(false);
     setResult(null);
-    // Xóa timeout khi đóng thủ công
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -202,8 +240,6 @@ export default function WheelGiftListener() {
       {showWheel && (
         <div className="fixed inset-0  flex items-center justify-center z-[99999]">
           <div className="rounded-xl p-6  w-[420px] h-[620px] max-w-full text-center relative">
-            {/* Nút đóng */}
-
             {/* SỬ DỤNG COMPONENT WheelOfFortune */}
             <div className="relative flex justify-center items-center">
               <WheelOfFortune
@@ -211,7 +247,7 @@ export default function WheelGiftListener() {
                 ref={fortuneWheelRef}
                 prizes={wheelPrizes}
                 wheelPointer={<PointerIcon className="text-red-600 size-10 " />}
-                // Dùng null vì chúng ta kích hoạt quay bằng logic WebSocket
+                // Dùng null vì chúng ta kích hoạt quay bằng logic WebSocket/Socket.IO
                 wheelSpinButton={null}
                 onSpinStart={handleSpinStart}
                 onSpinEnd={handleSpinEnd}
@@ -226,7 +262,6 @@ export default function WheelGiftListener() {
                 <div className="text-xl font-black text-red-600 mt-2 p-3 bg-red-50 rounded-lg border-2 border-red-300">
                   {result}
                 </div>
-                {/* Đếm ngược hoặc thông báo tự động tắt */}
               </div>
             )}
 
