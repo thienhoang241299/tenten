@@ -4,7 +4,7 @@ import React, { useState } from "react";
  * AdminTestGiftButton
  *
  * Props:
- * - apiBase (string) default "http://localhost:3002"
+ * - apiBase (string) default "http://165.154.248.208:3002"
  * - method ("GET" | "POST") default "GET"
  * - giftId (number) default 11046
  * - repeatEnd (boolean) default true
