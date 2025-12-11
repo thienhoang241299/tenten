@@ -5,6 +5,7 @@ import SongOverlay from "../components/SongOverlay";
 import SongTable from "../components/SongTable";
 import SongAutocomplete from "../components/SongAutocomplete";
 import TimerControl from "../components/TimerControl";
+import AdminTestGiftButton from "../components/AdminTestGiftButton";
 
 const API_URL = "http://165.154.248.208:3002";
 const socket = io(API_URL);
@@ -174,6 +175,16 @@ export default function Home() {
           className="fixed top-22 right-6 bg-blue-600 px-4 py-3 rounded-lg text-white font-semibold shadow-lg"
         >
           🎛️ Mở dịch chat
+        </button>
+      </div>
+      <div>
+        <button className="fixed top-36 right-6 bg-blue-600 px-4 py-3 rounded-lg text-white font-semibold shadow-lg">
+          <AdminTestGiftButton
+            apiBase="http://localhost:3002"
+            method="GET" // hoặc "POST"
+            giftId={11046}
+            repeatEnd={true}
+          />
         </button>
       </div>
       {/* Nút chuyển bài đầu tiên */}
