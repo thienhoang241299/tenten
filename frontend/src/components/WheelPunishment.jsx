@@ -143,7 +143,7 @@ export default function WheelGiftListener() {
       if (data.event === "gift" && data.data?.repeatEnd === true) {
         console.log(data.data);
         const giftId = data.data?.giftId;
-        if (giftId != 123) {
+        if (giftId == 11046) {
           startWheel();
         }
       }
