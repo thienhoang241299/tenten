@@ -235,7 +235,7 @@ export default function WheelGiftListener() {
       {/* <div className="fixed top-2 left-2 bg-black text-white px-3 py-1 rounded text-sm opacity-70">
         WS: {status}
       </div> */}
-
+      {console.log("check")}
       {/* Vòng quay */}
       {showWheel && (
         <div className="fixed inset-0  flex items-center justify-center z-[99999]">
