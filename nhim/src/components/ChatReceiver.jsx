@@ -5,7 +5,7 @@ import { pinyin } from "pinyin-pro"; // <-- THÊM Pinyin
 const isChinese = (t) => /[\p{Script=Han}]/u.test(t);
 
 export default function ChatReceiver({
-  roomId = "fideliacovernhactrung",
+  roomId = "nhimnhim610",
   target = "vi",
 }) {
   const [messages, setMessages] = useState([]);
