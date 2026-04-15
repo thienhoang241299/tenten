@@ -22,7 +22,7 @@ export default function ChatReceiver({
         const r = (Math.random() * 16) | 0;
         const v = c === "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
-      }
+      },
     );
   }
   // ================= SOCKET BACKEND =================
@@ -114,7 +114,12 @@ export default function ChatReceiver({
       >
         {messages.map((m, i) => (
           <div key={i} style={{ marginBottom: 12 }}>
-            💬 <b>@{m.user}</b>: {m.original}
+            💬{" "}
+            <b>
+              @{m.user} {isChinese(m.user) ? "-" : ""}
+              {isChinese(m.user) ? pinyin(m.user, { toneType: "mark" }) : ""}
+            </b>
+            : {m.original}
             {/* 🔥 HIỂN THỊ PINYIN (nếu có tiếng Trung) */}
             {m.pinyin && (
               <div style={{ color: "#0ea5e9", marginLeft: 10 }}>
