@@ -41,9 +41,12 @@ export default function ChatReceiver({
     // Nhận comment dịch trả về từ server
     socketRef.current.on("chatTranslated", (msg) => {
       let pinText = null;
-
+      let namePinYin = null;
       if (isChinese(msg.original)) {
         pinText = pinyin(msg.original, { toneType: "mark" }); // 🔥 Convert sang PINYIN
+      }
+      if (isChinese(msg.user)) {
+        namePinYin = pinyin(msg.user, { toneType: "mark" }); // 🔥 Convert tên người dùng sang PINYIN
       }
 
       console.log("📩 NEW CHAT:", msg);
@@ -52,6 +55,7 @@ export default function ChatReceiver({
         {
           ...msg,
           pinyin: pinText, // 👉 Thêm Pinyin vào object tin nhắn
+          namePinyin: namePinYin, // 👉 Thêm Pinyin tên người dùng vào object tin nhắn
         },
         ...prev,
       ]);
@@ -114,10 +118,12 @@ export default function ChatReceiver({
       >
         {messages.map((m, i) => (
           <div key={i} style={{ marginBottom: 12 }}>
-            💬{" "}
+            💬
             <b>
-              @{m.user} {isChinese(m.user) ? "-" : ""}
-              {isChinese(m.user) ? pinyin(m.user, { toneType: "mark" }) : ""}
+              @{m.user}{" "}
+              {m.namePinyin && (
+                <span style={{ color: "#0ea5e9" }}>({m.namePinyin})</span>
+              )}
             </b>
             : {m.original}
             {/* 🔥 HIỂN THỊ PINYIN (nếu có tiếng Trung) */}
