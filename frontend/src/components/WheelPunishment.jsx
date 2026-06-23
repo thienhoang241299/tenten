@@ -88,7 +88,7 @@ export default function WheelGiftListener() {
   // Khi tắt (false) sẽ hoàn toàn giữ nguyên kết nối WebSocket cũ.
   const USE_TEST_SOCKETIO = true;
   // URL server socket.io (thay đổi nếu bạn chạy trên port khác)
-  const SOCKETIO_URL = "http://165.154.248.208:3002";
+  const SOCKETIO_URL = "https://api.catcover.site";
 
   // Auto connect WebSocket (giữ nguyên logic hiện tại)
   useEffect(() => {

@@ -11,7 +11,7 @@ export default function useSocketListeners(onGift, config = {}) {
   const {
     rawWsUrl = "ws://localhost:21213/",
     useSocketIo = false,
-    socketIoUrl = "http://165.154.248.208:3002",
+    socketIoUrl = "https://api.catcover.site",
   } = config;
   const wsRef = useRef(null);
   const socketIoRef = useRef(null);

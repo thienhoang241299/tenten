@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 
-const socket = io("http://165.154.248.208:3002");
+const socket = io("https://api.catcover.site");
 
 export default function OverlaySubList() {
   const { playlist } = useParams();
   const [songs, setSongs] = useState([]);
 
   // Nếu không có playlist → dùng API cũ
-  const apiUrl = playlist
-    ? `http://165.154.248.208:3002/playlist/${playlist}`
-    : `http://165.154.248.208:3002/songs`;
+  const apiUrl =
+    playlist ?
+      `https://api.catcover.site/playlist/${playlist}`
+    : `https://api.catcover.site/songs`;
 
   const socketEvent = playlist ? null : "songsUpdate";
 

@@ -43,7 +43,7 @@ export default function WheelGiftListener() {
   useSocketListeners(onGift, {
     rawWsUrl: "ws://localhost:21213/",
     useSocketIo: USE_TEST_SOCKETIO,
-    socketIoUrl: "http://165.154.248.208:3002",
+    socketIoUrl: "https://api.catcover.site",
   });
 
   // auto-close behavior

@@ -7,7 +7,7 @@ import SongAutocomplete from "../components/SongAutocomplete";
 import TimerControl from "../components/TimerControl";
 import AdminTestGiftButton from "../components/AdminTestGiftButton";
 
-const API_URL = "http://165.154.248.208:3002";
+const API_URL = "https://api.catcover.site";
 const socket = io(API_URL);
 
 export default function Home() {
@@ -110,9 +110,10 @@ export default function Home() {
         updatedSongs.find((s) => s.title === selectedNext) || null;
 
       // 🧩 Thêm bài vào danh sách chờ nếu có chọn
-      const newNextList = nextObj
-        ? [...nextList, nextObj].filter(
-            (v, i, arr) => arr.findIndex((a) => a.title === v.title) === i
+      const newNextList =
+        nextObj ?
+          [...nextList, nextObj].filter(
+            (v, i, arr) => arr.findIndex((a) => a.title === v.title) === i,
           )
         : nextList;
 
@@ -180,7 +181,7 @@ export default function Home() {
       <div>
         <button className="fixed top-36 right-6 bg-blue-600 px-4 py-3 rounded-lg text-white font-semibold shadow-lg">
           <AdminTestGiftButton
-            apiBase="http://165.154.248.208:3002"
+            apiBase="https://api.catcover.site"
             method="GET" // hoặc "POST"
             giftId={11046}
             repeatEnd={true}
@@ -209,7 +210,7 @@ export default function Home() {
           {/* Timer */}
           <TimerControl
             roomId="fideliacovernhactrung"
-            serverUrl="http://165.154.248.208:3002"
+            serverUrl="https://api.catcover.site"
           />
 
           <div className="mt-4"></div>
@@ -266,12 +267,11 @@ export default function Home() {
               🎶 Danh sách chờ
             </h2>
 
-            {nextList.length === 0 ? (
+            {nextList.length === 0 ?
               <p className="text-gray-400 italic">
                 Chưa có bài nào trong list.
               </p>
-            ) : (
-              <>
+            : <>
                 <ul className="space-y-2">
                   {nextList.map((song, index) => (
                     <li
@@ -297,7 +297,7 @@ export default function Home() {
                   ))}
                 </ul>
               </>
-            )}
+            }
           </div>
 
           {/* Hiển thị chọn bài */}

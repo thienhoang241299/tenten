@@ -5,7 +5,7 @@ import SongOverlay from "./components/SongOverlay";
 import SongTable from "./components/SongTable";
 import SongAutocomplete from "./components/SongAutocomplete";
 
-const socket = io("http://165.154.248.208:3002");
+const socket = io("https://api.catcover.site");
 
 export default function App() {
   const [songs, setSongs] = useState([]);
@@ -17,7 +17,7 @@ export default function App() {
 
   useEffect(() => {
     axios
-      .get("http://165.154.248.208:3002/songs")
+      .get("https://api.catcover.site/songs")
       .then((res) => setSongs(res.data));
 
     socket.on("songChange", ({ current, next }) => {
@@ -31,14 +31,14 @@ export default function App() {
   const handleAddSong = async (e) => {
     e.preventDefault();
     if (!newSong.trim()) return;
-    await axios.post("http://165.154.248.208:3002/songs", { title: newSong });
+    await axios.post("https://api.catcover.site/songs", { title: newSong });
     setNewSong("");
   };
 
   const handleSaveSelection = async () => {
     const c = songs.find((s) => s.title === selectedCurrent);
     const n = songs.find((s) => s.title === selectedNext);
-    await axios.post("http://165.154.248.208:3002/current", {
+    await axios.post("https://api.catcover.site/current", {
       current: c,
       next: n,
     });

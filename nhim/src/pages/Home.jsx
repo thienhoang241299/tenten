@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const API_URL = "http://165.154.248.208:3002";
+const API_URL = "https://api.catcover.site";
 const socket = io(API_URL);
 
 export default function Home() {

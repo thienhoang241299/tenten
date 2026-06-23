@@ -22,12 +22,12 @@ export default function ChatReceiver({
         const r = (Math.random() * 16) | 0;
         const v = c === "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
-      }
+      },
     );
   }
   // ================= SOCKET BACKEND =================
   useEffect(() => {
-    socketRef.current = io("http://165.154.248.208:3002/");
+    socketRef.current = io("https://api.catcover.site/");
 
     socketRef.current.on("connect", () => {
       setStatus("🟢 Connected");

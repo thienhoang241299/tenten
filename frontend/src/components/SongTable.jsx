@@ -7,7 +7,7 @@ export default function SongTable({ songs, playlist }) {
   const handleDelete = async (title) => {
     if (
       !confirm(
-        `Bạn có chắc muốn xóa bài "${title}" khỏi playlist "${playlist}" không?`
+        `Bạn có chắc muốn xóa bài "${title}" khỏi playlist "${playlist}" không?`,
       )
     )
       return;
@@ -15,9 +15,9 @@ export default function SongTable({ songs, playlist }) {
     setLoading(true);
     try {
       await axios.delete(
-        `http://165.154.248.208:3002/playlist/${playlist}/${encodeURIComponent(
-          title
-        )}`
+        `https://api.catcover.site/playlist/${playlist}/${encodeURIComponent(
+          title,
+        )}`,
       );
     } catch (err) {
       console.error(err);

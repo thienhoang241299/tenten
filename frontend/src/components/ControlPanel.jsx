@@ -4,7 +4,7 @@ import axios from "axios";
 import SongAutocomplete from "./SongAutocomplete";
 import TimerControl from "./TimerControl";
 
-const API_URL = "http://165.154.248.208:3002";
+const API_URL = "https://api.catcover.site";
 const socket = io(API_URL);
 
 export default function ControlPanel() {
@@ -66,9 +66,10 @@ export default function ControlPanel() {
       const nextObj =
         updatedSongs.find((s) => s.title === selectedNext) || null;
 
-      const newNextList = nextObj
-        ? [...nextList, nextObj].filter(
-            (v, i, arr) => arr.findIndex((a) => a.title === v.title) === i
+      const newNextList =
+        nextObj ?
+          [...nextList, nextObj].filter(
+            (v, i, arr) => arr.findIndex((a) => a.title === v.title) === i,
           )
         : nextList;
 
@@ -100,9 +101,9 @@ export default function ControlPanel() {
       <h1 className="text-2xl font-bold text-center">🎛️ Điều khiển bài hát</h1>
       <h2 className="text-xl text-center font-semibold mb-2">
         Bài tiếp theo :{" "}
-        {Array.isArray(nextList) && nextList.length > 0
-          ? nextList[0].title
-          : "Chưa có bài tiếp theo"}
+        {Array.isArray(nextList) && nextList.length > 0 ?
+          nextList[0].title
+        : "Chưa có bài tiếp theo"}
       </h2>
       <div className="flex justify-center mb-3">
         <button
@@ -192,7 +193,7 @@ export default function ControlPanel() {
       </div>
       <TimerControl
         roomId="fideliacovernhactrung"
-        serverUrl="http://165.154.248.208:3002"
+        serverUrl="https://api.catcover.site"
       />
     </div>
   );

@@ -4,7 +4,7 @@ import React, { useState } from "react";
  * AdminTestGiftButton
  *
  * Props:
- * - apiBase (string) default "http://165.154.248.208:3002"
+ * - apiBase (string) default "https://api.catcover.site"
  * - method ("GET" | "POST") default "GET"
  * - giftId (number) default 11046
  * - repeatEnd (boolean) default true
@@ -16,7 +16,7 @@ import React, { useState } from "react";
  * Usage: import và đặt trên trang điều khiển (admin) của bạn.
  */
 export default function AdminTestGiftButton({
-  apiBase = "http://165.154.248.208:3002",
+  apiBase = "https://api.catcover.site",
   method = "GET",
   giftId = 11046,
   repeatEnd = true,

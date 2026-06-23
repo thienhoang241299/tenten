@@ -4,7 +4,7 @@ import GiftListener from "../components/GiftListener";
 
 export default function GiftTimer({ roomId = "fideliacovernhactrung" }) {
   const [timeLeft, setTimeLeft] = useState(0);
-  const socket = io("http://165.154.248.208:3002");
+  const socket = io("https://api.catcover.site");
 
   useEffect(() => {
     socket.emit("joinRoom", { roomId });

@@ -27,7 +27,7 @@ export default function ChatReceiver({
   }
   // ================= SOCKET BACKEND =================
   useEffect(() => {
-    socketRef.current = io("http://165.154.248.208:3002/");
+    socketRef.current = io("https://api.catcover.site/");
 
     socketRef.current.on("connect", () => {
       setStatus("🟢 Connected");
